@@ -43,7 +43,7 @@ def main() -> None:
                     raise RuntimeError(f"HTTP inesperado: {response.status}")
             durations.append((time.perf_counter() - start) * 1000)
 
-        assets = ["index.html", "styles.css", "data.js", "app.js"]
+        assets = ["index.html", "styles.css", "data.js", "mensagens.js", "api.js", "app.js", "assets/coeh.svg"]
         asset_sizes = {name: (ROOT / "painel" / name).stat().st_size for name in assets}
         result = {
             "scenario": "200 GETs sequenciais após 10 aquecimentos",

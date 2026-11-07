@@ -54,6 +54,10 @@ python scripts/gerar_painel.py
 
 No modo completo, a tela permite assumir atendimentos, registrar andamento, dependência interna, retorno, correção de prioridade, espera ou conclusão. Eventos novos são gravados em `dados/estado/eventos-runtime.csv`; mensagens e resultados originais permanecem intactos.
 
+A interface aprovada usa fila e atendimento lado a lado em telas amplas, e lista/detalhe com botão de voltar em telas menores. Mensagens originais e histórico ficam nas abas do atendimento. O cabeçalho informa quando o estado atual foi carregado. Se o servidor falhar, a consulta continua disponível e as gravações são desabilitadas até recuperar a conexão. Em caso de falha ao salvar, o formulário mantém os campos e o reenvio da mesma tentativa conserva a chave que evita duplicidade.
+
+O protótipo aprovado permanece separado em `painel/prototipo/` como referência visual. Para operar com persistência, use a página principal `http://127.0.0.1:8765/`, não a rota do protótipo.
+
 Para continuar com mensagens adicionais em outra sessão, siga `docs/continuidade.md`. As duas filas em `resultados/` são resultados salvos, e EVT-001 a EVT-003 são eventos simulados. O painel não chama LLM: a IA participa pela sessão que usa AGENTS.md e os prompts, com revisão antes de salvar. Python 3.11 ou superior é necessário apenas para servidor e verificações; a leitura dos materiais não exige credenciais ou dependências externas.
 
 ## Verificações
@@ -63,6 +67,12 @@ python scripts/validar_estado.py
 python scripts/auditar_regras.py
 python -m unittest discover -s tests -v
 python scripts/benchmark_local.py
+```
+
+Se houver Node.js 18 ou superior, os testes do contrato de comunicação do painel rodam sem instalar pacotes:
+
+```bash
+node --test tests/test_panel_api.cjs
 ```
 
 O primeiro comando verifica estrutura, IDs e cobertura das mensagens. O segundo protege os casos de domínio que não podem regredir, como pedidos separados, cancelamentos e correções humanas.

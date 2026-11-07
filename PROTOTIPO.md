@@ -1,5 +1,7 @@
 # Novo protótipo de design
 
+**Aprovado e aplicado ao sistema.** Para usar a versão com persistência, abra http://127.0.0.1:8765/. A rota abaixo permanece como referência de design e continua sem gravação real.
+
 Abra http://127.0.0.1:8765/prototipo/index.html com o servidor local em execução (`python -m backend`). Também funciona abrindo painel/prototipo/index.html diretamente.
 
 Esta é uma proposta independente da interface anterior. Os dados são os mesmos da demonstração, e as alterações de teste ficam apenas na memória da aba. Recarregar restaura tudo.

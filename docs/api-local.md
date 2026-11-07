@@ -37,6 +37,11 @@ Tipos aceitos:
 - `correcao_prioridade`, com `priority` entre P0 e P3;
 - `aguardar_informacao`, com `return_at` opcional;
 - `conclusao`.
+- `assumir`, que registra o responsável e coloca em análise;
+- `andamento`, que registra a ação sem alterar o estado;
+- `dependencia_interna`, com `return_at` opcional, que coloca em espera pela equipe.
+
+`return_at` fica separado do prazo do cliente. A interface envia o horário de Brasília com offset `-03:00`. Após cada gravação, o servidor retorna o estado completo confirmado; o painel não considera o registro salvo antes dessa resposta.
 
 ## Respostas
 
