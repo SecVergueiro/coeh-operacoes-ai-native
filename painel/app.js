@@ -91,7 +91,7 @@
   function tabContent(item, entries, history) {
     if (state.tab === "messages") return `<div class="all-messages">${entries.map(messageCard).join("") || '<p class="history-empty">Consulte a planilha original para este atendimento.</p>'}</div>`;
     if (state.tab === "history") return history.length ? history.map((event) => `<article class="history-item"><h3>${esc(label(event.tipo))}</h3><p>${esc(event.motivo)}</p><small>${esc(event.autor)} · ${esc(dateLabel(event.ocorrido_em))}${event.idempotency_key?" · Registro da operação":" · Evento simulado do desafio"}</small>${event.retorno_em?`<small>Retorno: ${esc(dateLabel(event.retorno_em))} (Brasília)</small>`:""}</article>`).join("") : '<p class="history-empty">Nenhuma ação humana registrada neste atendimento. Ao registrar o andamento, ele aparece aqui com autor e motivo.</p>';
-    return `<section class="next-action"><div class="next-action-heading">${icon("arrow")}Próxima ação sugerida</div><p>${esc(item.proximo_passo)}</p><small class="suggestion-note">A IA organiza. A operação confere e executa.</small></section>
+    return `<section class="next-action"><div class="next-action-heading">${icon("arrow")}Próxima ação sugerida</div><p>${esc(item.proximo_passo)}</p><small class="suggestion-note">Sugestão de IA salva na análise. A operação revisa antes de executar.</small><button class="ai-explainer-link" data-show-ai>Como a IA participa ${icon("info")}</button></section>
       <section class="content-section"><h3>Impacto relatado pelo cliente</h3><p class="impact-copy">${esc(item.impacto || "Impacto não informado nas mensagens.")}</p></section>
       ${item.retorno_em?`<section class="content-section"><h3>Retorno combinado</h3><p class="impact-copy">${esc(dateLabel(item.retorno_em))}, horário de Brasília. O prazo original do cliente foi mantido.</p></section>`:""}
       ${item.ultimo_registro?`<section class="content-section"><h3>Último andamento</h3><p class="impact-copy">${esc(item.ultimo_registro)}</p></section>`:""}
@@ -160,8 +160,17 @@
   const mobileNav = matchMedia("(max-width: 650px)");
   function closeNav() { $("#sidebar").classList.remove("is-open"); $("#sidebar").inert=mobileNav.matches; $("#nav-scrim").hidden=true; $("#open-nav").setAttribute("aria-expanded","false"); }
   function showInfo(guide = false) {
-    $("#info-title").textContent = guide ? "Como a fila é priorizada" : "Como usar esta fila";
-    $("#info-content").innerHTML = guide ? '<p>A ordem considera o corte de 05/11/2026 às 16h, em Brasília.</p><h3>P0 · Agir agora</h3><p>Prazo vencido, compromisso descumprido ou impacto imediato.</p><h3>P1 · Em seguida</h3><p>Prazo próximo ou risco concreto de bloqueio.</p><h3>P2 · Planejar</h3><p>Pendência acionável, sem bloqueio imediato.</p><h3>P3 · Acompanhar</h3><p>Prazo distante, dependência ou pedido encerrado.</p><p>A prioridade é revisável. Abra um pedido e clique na prioridade para registrar uma correção.</p>' : '<p>Esta fila organiza as 96 mensagens fictícias do desafio Coeh em 22 atendimentos.</p><ul><li>Escolha um pedido e confira as mensagens originais.</li><li>Revise o próximo passo sugerido pela IA.</li><li>Registre as ações realizadas, o responsável e o retorno combinado.</li></ul><p>Os registros feitos pelo servidor ficam salvos no histórico e continuam disponíveis ao recarregar. Os três eventos iniciais são simulados para a demonstração. As mensagens originais permanecem intactas.</p>';
+    $("#info-title").textContent = guide ? "Como a fila é priorizada" : "Como a IA participa";
+    $("#info-content").innerHTML = guide ? '<p>A ordem considera o corte de 05/11/2026 às 16h, em Brasília.</p><h3>P0 · Agir agora</h3><p>Prazo vencido, compromisso descumprido ou impacto imediato.</p><h3>P1 · Em seguida</h3><p>Prazo próximo ou risco concreto de bloqueio.</p><h3>P2 · Planejar</h3><p>Pendência acionável, sem bloqueio imediato.</p><h3>P3 · Acompanhar</h3><p>Prazo distante, dependência ou pedido encerrado.</p><p>A prioridade é revisável. Abra um pedido e clique na prioridade para registrar uma correção.</p>' : `
+      <p>O fluxo AI-native combina interpretação pela IA e acompanhamento humano. Cada rodada começa com as mensagens, o estado dos pedidos e as decisões anteriores.</p>
+      <ol class="ai-flow">
+        <li><h3>A IA recebe o contexto</h3><p>Uma sessão de IA lê as instruções do repositório, os atendimentos existentes, as mensagens novas e o histórico humano.</p></li>
+        <li><h3>A IA propõe a organização</h3><p>Agrupa mensagens relacionadas, separa pedidos diferentes e sugere prioridade, próximo passo e dúvidas.</p></li>
+        <li><h3>A operação revisa e registra</h3><p>Você confere as evidências, corrige interpretações, executa as ações e registra o andamento neste painel.</p></li>
+        <li><h3>A próxima rodada usa as correções</h3><p>Uma nova sessão de IA deve ler os registros salvos e propor atualizações sem apagar as decisões anteriores.</p></li>
+      </ol>
+      <div class="ai-scope"><h3>O que acontece nesta demonstração</h3><p>As classificações e sugestões exibidas são resultados salvos da análise. O painel não gera respostas nem reclassifica pedidos automaticamente. A interpretação de mensagens novas acontece na sessão de IA que usa o repositório.</p></div>
+      <p>As instruções de entrada estão em <code>AGENTS.md</code>; os prompts e o procedimento de continuidade também estão no repositório. Os registros feitos aqui ficam salvos no histórico; os três eventos iniciais são simulados para o desafio.</p>`;
     $("#info-dialog").showModal();
   }
 
@@ -181,6 +190,7 @@
   $("#ticket").addEventListener("click", (event) => {
     const action=event.target.closest("[data-action]"); if(action){openAction(action.dataset.action);return;}
     const tab=event.target.closest("[data-tab]");if(tab){setTab(tab.dataset.tab,true);return;}
+    if(event.target.closest("[data-show-ai]")){showInfo();return;}
     if(event.target.closest("[data-show-messages]")){setTab("messages",true);return;}
     if(event.target.closest("#back-to-list")){$("#inbox").classList.remove("detail-open");$(`[data-id="${state.selected}"]`)?.focus();}
   });

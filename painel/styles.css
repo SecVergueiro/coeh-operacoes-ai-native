@@ -13,6 +13,12 @@ dialog{border:1px solid #d9cebe;border-radius:12px;box-shadow:0 24px 90px #29140
 .brand img{width:120px;height:29px;filter:brightness(0);opacity:.85}
 .row-person,.row-company{display:block}
 .action-short{display:none}
+.ai-explainer-link{display:inline-flex;align-items:center;gap:6px;min-height:36px;margin-top:6px;padding:5px 0;border:0;background:transparent;color:#654822;font-size:11px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.ai-explainer-link svg{width:13px;height:13px}.ai-explainer-link:hover{color:var(--ink)}
+.dialog-body .ai-flow{margin:0;padding-inline-start:23px;display:grid;gap:18px;color:var(--ink)}
+.ai-flow li{padding-inline-start:5px}.ai-flow li::marker{font-size:12px;font-weight:600}.ai-flow h3{font-size:13px;line-height:1.5;margin-bottom:5px}.ai-flow p,.ai-scope p{font-size:12px;line-height:1.8;color:var(--muted)}
+.ai-scope{padding:14px;background:#fcf7df;border:1px solid #e9dfad;border-radius:6px}.ai-scope h3{margin-bottom:7px;color:#654822}.dialog-body code{color:var(--ink);font-size:11px}
+@media(max-width:650px){.ai-explainer-link{min-height:44px;font-size:12px}.ai-flow p,.ai-scope p{font-size:13px}.help-button{min-height:44px}}
 @media(max-width:980px){.main:has(.detail-open) .page-heading{display:none}.main:has(.detail-open) .inbox{height:calc(100dvh - 110px);margin-top:14px;min-height:350px}}
 @media(max-width:650px){.action-long{display:none}.action-short{display:inline}.footer-actions{flex-wrap:nowrap}.footer-actions .primary{flex:1}.ticket-footer .button{padding-inline:9px}.workspace-footnote{font-size:9px}.ticket-footer p{font-size:9px;line-height:1.5}}
 @media(min-width:981px){

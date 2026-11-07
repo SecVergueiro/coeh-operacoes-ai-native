@@ -43,3 +43,9 @@ A revisão responsiva anterior do protótipo cobriu 1440, 1024, 768, 390 e 320 p
 | Movimento | Somente resposta à interação; movimento reduzido respeitado |
 
 Não houve criação de novas regras de classificação, integração com IA ou alteração dos resultados originais.
+
+## Clareza sobre a participação da IA
+
+Adicionado acesso “Como a IA participa” na navegação e junto da próxima ação. A nota contextual identifica a sugestão como resultado salvo da análise. A explicação apresenta contexto, proposta da IA, revisão humana e reutilização das correções; explicita que o painel não executa geração ou reclassificação automática.
+
+Verificado no navegador: abertura pelos dois acessos, conteúdo do diálogo e fechamento por Escape. Sintaxe JavaScript e diff conferidos. Sem alteração nas gravações ou nas regras de negócio. Mantida divulgação progressiva por botão de texto, sem um bloco explicativo permanente ocupando a fila.
