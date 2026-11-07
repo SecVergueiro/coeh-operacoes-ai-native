@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import argparse
 from pathlib import Path
 
 
@@ -29,9 +30,14 @@ def ler_csv(caminho: Path) -> list[dict[str, str]]:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--fila", type=Path, default=FILA)
+    parser.add_argument("--eventos", type=Path, default=EVENTOS)
+    parser.add_argument("--ultima-linha", type=int, default=97)
+    args = parser.parse_args()
     erros: list[str] = []
-    atendimentos = ler_csv(FILA)
-    eventos = ler_csv(EVENTOS)
+    atendimentos = ler_csv(args.fila)
+    eventos = ler_csv(args.eventos)
 
     ids = [item["atendimento_id"] for item in atendimentos]
     if len(ids) != len(set(ids)):
@@ -61,11 +67,11 @@ def main() -> None:
     for item in atendimentos:
         for valor in item["linhas_mensagem"].split("|"):
             linha = int(valor)
-            if linha < 2 or linha > 97:
+            if linha < 2 or linha > args.ultima_linha:
                 erros.append(f"{item['atendimento_id']}: linha {linha} fora da base.")
             linhas_vinculadas.add(linha)
 
-    faltantes = sorted(set(range(2, 98)) - linhas_vinculadas)
+    faltantes = sorted(set(range(2, args.ultima_linha + 1)) - linhas_vinculadas)
     if faltantes:
         erros.append(f"Mensagens sem vínculo: {faltantes}")
 

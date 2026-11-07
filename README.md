@@ -22,6 +22,7 @@ Permitir que a operação:
 5. Veja os eventos manuais em `dados/eventos-manuais.csv`.
 6. Veja a fila revisada em `resultados/rodada-2/fila.csv`.
 7. Execute `python -m backend` e abra `http://127.0.0.1:8765` para navegar e registrar decisões.
+8. Confira o atendimento ao enunciado e as pendências externas em `docs/conferencia-de-escopo.md`.
 
 ## Estrutura
 
@@ -35,7 +36,7 @@ resultados/rodada-1/   corte de 04/11/2026 às 18h
 resultados/rodada-2/   corte de 05/11/2026 às 16h
 demo/                  roteiro da demonstração em vídeo
 scripts/               verificações determinísticas de integridade
-painel/                visualização local da fila, sem servidor ou credenciais
+painel/                interface opcional; leitura estática ou servidor local
 ```
 
 ## Painel local
@@ -51,7 +52,9 @@ Para atualizar o snapshot depois de alterar a fila:
 python scripts/gerar_painel.py
 ```
 
-No modo completo, a tela permite pesquisar, filtrar, abrir detalhes e registrar correção de prioridade, espera por informação ou conclusão. Eventos novos são gravados em `dados/estado/eventos-runtime.csv`; mensagens e resultados originais permanecem intactos.
+No modo completo, a tela permite assumir atendimentos, registrar andamento, dependência interna, retorno, correção de prioridade, espera ou conclusão. Eventos novos são gravados em `dados/estado/eventos-runtime.csv`; mensagens e resultados originais permanecem intactos.
+
+Para continuar com mensagens adicionais em outra sessão, siga `docs/continuidade.md`. As duas filas em `resultados/` são resultados salvos, e EVT-001 a EVT-003 são eventos simulados. O painel não chama LLM: a IA participa pela sessão que usa AGENTS.md e os prompts, com revisão antes de salvar. Python 3.11 ou superior é necessário apenas para servidor e verificações; a leitura dos materiais não exige credenciais ou dependências externas.
 
 ## Verificações
 

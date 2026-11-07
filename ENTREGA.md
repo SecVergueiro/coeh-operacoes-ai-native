@@ -1,5 +1,7 @@
 # Checklist de entrega
 
+Conferência requisito por requisito e limites da validação: `docs/conferencia-de-escopo.md`. Continuidade em uma sessão nova: `docs/continuidade.md`.
+
 ## Conteúdo obrigatório
 
 - [x] base recebida preservada em `dados/originais/`

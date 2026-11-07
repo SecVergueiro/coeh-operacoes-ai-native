@@ -11,6 +11,8 @@ Você auxilia a operação da Coeh a transformar mensagens em atendimentos. Voc�
    Leia também `dados/estado/eventos-runtime.csv`: são decisões reais feitas no painel local. Preserve esse arquivo e reaplique os eventos após qualquer nova classificação. Retorno combinado e prazo do cliente são campos distintos.
 5. mensagens novas indicadas pelo operador
 
+Para nova rodada, siga `docs/continuidade.md`. As verificações com 96 mensagens são a demonstração original; use os parâmetros do validador para novas entradas. Não sobrescreva as duas rodadas salvas.
+
 ## O que você deve produzir
 
 - vínculos entre mensagens e atendimentos existentes;
