@@ -18,7 +18,7 @@ STATUSES = {
     "cancelado",
     "sem_acao",
 }
-EVENT_TYPES = {"correcao_prioridade", "aguardar_informacao", "conclusao"}
+EVENT_TYPES = {"correcao_prioridade", "aguardar_informacao", "conclusao", "assumir", "andamento", "dependencia_interna"}
 
 
 class DomainError(Exception):
@@ -84,12 +84,18 @@ def parse_event_command(payload: dict[str, Any]) -> EventCommand:
 def apply_runtime_event(attendance: dict[str, str], event: dict[str, str]) -> dict[str, str]:
     updated = dict(attendance)
     event_type = event["tipo"]
+    updated["ultimo_registro"] = event["motivo"]
+    if event.get("retorno_em"):
+        updated["retorno_em"] = event["retorno_em"]
+    if event_type == "assumir":
+        updated["responsavel"] = event["autor"]
+        updated["status"] = "em_analise"
+    elif event_type == "dependencia_interna":
+        updated["status"] = "aguardando_interno"
     if event_type == "correcao_prioridade":
         updated["prioridade"] = event["valor_novo"]
     elif event_type == "aguardar_informacao":
         updated["status"] = "aguardando_cliente"
-        if event.get("retorno_em"):
-            updated["prazo"] = event["retorno_em"]
     elif event_type == "conclusao":
         updated["status"] = "concluido"
         updated["prioridade"] = "P3"

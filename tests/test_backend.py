@@ -15,6 +15,17 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class QueueServiceTest(unittest.TestCase):
+    def test_ownership_progress_and_dependency_preserve_deadline(self) -> None:
+        original = self.service.get_state()["attendances"][0]
+        for index, event_type in enumerate(["assumir", "andamento", "dependencia_interna", "aguardar_informacao"]):
+            command = parse_event_command({"attendance_id": original["atendimento_id"], "event_type": event_type, "reason": "Conferência feita; aguardamos documento do setor.", "author": "Isaque", "return_at": "2026-11-06T10:00:00-03:00"})
+            _, _, state = self.service.register_event(command, f"workflow-key-{index}")
+        item = next(row for row in state["attendances"] if row["atendimento_id"] == original["atendimento_id"])
+        self.assertEqual(item["responsavel"], "Isaque")
+        self.assertEqual(item["prazo"], original["prazo"])
+        self.assertEqual(item["retorno_em"], "2026-11-06T10:00:00-03:00")
+        self.assertEqual(item["status"], "aguardando_cliente")
+
     def setUp(self) -> None:
         work = ROOT / "work"
         work.mkdir(exist_ok=True)

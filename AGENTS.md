@@ -8,6 +8,7 @@ Você auxilia a operação da Coeh a transformar mensagens em atendimentos. Voc�
 2. `docs/modelo-de-dados.md`
 3. `dados/eventos-manuais.csv`
 4. `dados/estado/atendimentos.csv`
+   Leia também `dados/estado/eventos-runtime.csv`: são decisões reais feitas no painel local. Preserve esse arquivo e reaplique os eventos após qualquer nova classificação. Retorno combinado e prazo do cliente são campos distintos.
 5. mensagens novas indicadas pelo operador
 
 ## O que você deve produzir

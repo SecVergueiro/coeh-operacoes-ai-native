@@ -18,7 +18,8 @@
   const modeIndicator = document.querySelector("#mode-indicator");
 
   const normalize = (value) => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-  const label = (value) => String(value || "não informado").replaceAll("_", " ");
+  const labels = { em_analise: "Em análise", novo: "Novo", concluido: "Concluído", cancelado: "Cancelado", sem_acao: "Sem ação", aguardando_cliente: "Aguardando cliente", aguardando_interno: "Aguardando equipe", retorno_agendado: "Retorno agendado", correcao_prioridade: "Correção de prioridade", aguardar_informacao: "Espera por informação", conclusao: "Conclusão", assumir: "Responsável definido", andamento: "Andamento", dependencia_interna: "Dependência interna" };
+  const label = (value) => labels[value] || String(value || "não informado").replaceAll("_", " ");
   const escapeHtml = (value) => String(value ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
 
   function normalizeApiState(payload) {
@@ -130,8 +131,14 @@
       <section class="detail-section"><div class="detail-grid">
         ${field("Cliente", item.usuario)}${field("Empresa", item.empresa || "Não informada")}${field("Categoria", label(item.categoria))}
         ${field("Situação", label(item.status))}${field("Prazo", deadline(item.prazo))}${field("Mensagens", item.linhas_mensagem.replaceAll("|", ", "))}
+        ${field("Responsável", item.responsavel || "Não atribuído")}${field("Retorno combinado (Brasília)", item.retorno_em ? deadline(item.retorno_em) : "Não combinado")}
       </div></section>
+      <section class="detail-section"><h3>Último registro operacional</h3><p class="detail-copy">${escapeHtml(item.ultimo_registro || "Nenhuma atualização manual nesta sessão.")}</p></section>
       <section class="detail-section"><h3>Impacto relatado</h3><p class="detail-copy">${escapeHtml(item.impacto)}</p></section>
+      <section class="detail-section"><h3>Mensagens de origem</h3><p class="form-hint">Relatos do cliente; não comprovam execução. Referências à planilha recebida.</p>${item.linhas_mensagem.split("|").map((line) => {
+        const cells = window.COEH_MESSAGES?.[line];
+        return `<details><summary>Linha ${escapeHtml(line)} · ${escapeHtml(cells?.[1] || item.usuario)}</summary><p class="detail-copy">${escapeHtml(cells?.[2] || "Consulte a planilha original.")}</p></details>`;
+      }).join("")}</section>
       <section class="detail-section"><h3>Próximo passo sugerido</h3><p class="detail-copy">${escapeHtml(item.proximo_passo)}</p></section>
       <section class="detail-section"><h3>Revisão humana</h3><p class="detail-copy">${item.revisao_necessaria === "sim" ? "Necessária antes de decidir ou executar." : "Classificação com evidência suficiente; a execução ainda exige confirmação operacional."}</p></section>
       <section class="detail-section"><h3>Registrar decisão humana</h3>${apiAvailable ? decisionForm(item) : '<p class="offline-note">Abra o painel pelo servidor local para registrar uma decisão. No modo arquivo, a demonstração é somente leitura.</p>'}</section>`;
@@ -150,6 +157,9 @@
   function decisionForm(item) {
     return `<form class="decision-form" id="decision-form" novalidate>
       <div class="decision-type" aria-label="Tipo de decisão">
+        <button class="choice-button" type="button" data-event-type="assumir" aria-pressed="false">Assumir atendimento</button>
+        <button class="choice-button" type="button" data-event-type="andamento" aria-pressed="false">Registrar andamento</button>
+        <button class="choice-button" type="button" data-event-type="dependencia_interna" aria-pressed="false">Aguardar equipe</button>
         <button class="choice-button" type="button" data-event-type="correcao_prioridade" aria-pressed="true">Corrigir prioridade</button>
         <button class="choice-button" type="button" data-event-type="aguardar_informacao" aria-pressed="false">Aguardar informação</button>
         <button class="choice-button" type="button" data-event-type="conclusao" aria-pressed="false">Concluir</button>
@@ -157,7 +167,7 @@
       <div class="form-field" id="priority-field"><span>Nova prioridade</span><div class="priority-options" aria-label="Nova prioridade">
         ${["P0", "P1", "P2", "P3"].map((priority) => `<button class="choice-button" type="button" data-new-priority="${priority}" aria-pressed="${item.prioridade === priority}">${priority}</button>`).join("")}
       </div></div>
-      <label class="form-field" id="return-field" hidden><span>Retorno combinado, se houver</span><input id="return-at" type="datetime-local" /></label>
+      <label class="form-field" id="return-field" hidden><span>Retorno combinado, horário de Brasília</span><input id="return-at" type="datetime-local" /></label>
       <label class="form-field"><span>Responsável</span><input id="event-author" name="author" value="operador" maxlength="80" autocomplete="name" /></label>
       <label class="form-field"><span>Motivo da decisão</span><textarea id="event-reason" name="reason" minlength="10" maxlength="600" required></textarea></label>
       <p class="form-hint">A decisão será adicionada ao histórico. Nenhuma mensagem original será alterada.</p>
@@ -170,11 +180,13 @@
     const form = document.querySelector("#decision-form");
     let eventType = "correcao_prioridade";
     let priority = item.prioridade;
+    let pendingKey = null;
+    let pendingBody = null;
     form.querySelectorAll("[data-event-type]").forEach((button) => button.addEventListener("click", () => {
       eventType = button.dataset.eventType;
       form.querySelectorAll("[data-event-type]").forEach((candidate) => candidate.setAttribute("aria-pressed", String(candidate === button)));
       document.querySelector("#priority-field").hidden = eventType !== "correcao_prioridade";
-      document.querySelector("#return-field").hidden = eventType !== "aguardar_informacao";
+      document.querySelector("#return-field").hidden = !["aguardar_informacao", "dependencia_interna", "andamento"].includes(eventType);
     }));
     form.querySelectorAll("[data-new-priority]").forEach((button) => button.addEventListener("click", () => {
       priority = button.dataset.newPriority;
@@ -184,7 +196,8 @@
       event.preventDefault();
       const reason = document.querySelector("#event-reason").value.trim();
       const author = document.querySelector("#event-author").value.trim() || "operador";
-      const returnAt = document.querySelector("#return-at").value || null;
+      const returnValue = document.querySelector("#return-at").value;
+      const returnAt = returnValue ? `${returnValue}:00-03:00` : null;
       const errorElement = document.querySelector("#form-error");
       const saveButton = document.querySelector("#save-decision");
       if (reason.length < 10) {
@@ -196,11 +209,13 @@
       errorElement.hidden = true;
       saveButton.disabled = true;
       saveButton.textContent = "Registrando…";
+      const body = JSON.stringify({ attendance_id: item.atendimento_id, event_type: eventType, reason, author, priority: eventType === "correcao_prioridade" ? priority : null, return_at: ["aguardar_informacao", "dependencia_interna", "andamento"].includes(eventType) ? returnAt : null });
+      if (body !== pendingBody) { pendingKey = createIdempotencyKey(); pendingBody = body; }
       try {
         const response = await fetch("/api/v1/events", {
           method: "POST",
-          headers: { "Content-Type": "application/json", "Idempotency-Key": createIdempotencyKey() },
-          body: JSON.stringify({ attendance_id: item.atendimento_id, event_type: eventType, reason, author, priority: eventType === "correcao_prioridade" ? priority : null, return_at: eventType === "aguardar_informacao" ? returnAt : null }),
+          headers: { "Content-Type": "application/json", "Idempotency-Key": pendingKey },
+          body,
         });
         const payload = await response.json();
         if (!response.ok) throw new Error(payload?.error?.message || "Não foi possível registrar a decisão.");

@@ -66,7 +66,7 @@ class QueueService:
             "autor": command.author,
             "tipo": command.event_type,
             "campo": field,
-            "valor_anterior": attendance[field],
+            "valor_anterior": attendance.get(field, ""),
             "valor_novo": new_value,
             "motivo": command.reason,
             "retorno_em": command.return_at or "",
@@ -81,4 +81,10 @@ class QueueService:
             return "prioridade", command.priority or ""
         if command.event_type == "aguardar_informacao":
             return "status", "aguardando_cliente"
+        if command.event_type == "assumir":
+            return "responsavel", command.author
+        if command.event_type == "andamento":
+            return "ultimo_registro", command.reason
+        if command.event_type == "dependencia_interna":
+            return "status", "aguardando_interno"
         return "status", "concluido"
