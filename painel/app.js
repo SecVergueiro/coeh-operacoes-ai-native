@@ -98,11 +98,13 @@
         <td class="summary"><strong>${escapeHtml(item.resumo)}</strong><span>${escapeHtml(label(item.categoria))}</span></td>
         <td class="deadline">${escapeHtml(deadline(item.prazo))}</td>
         <td class="status">${escapeHtml(label(item.status))}</td>
+        <td><button class="open-attendance" type="button" aria-label="Abrir atendimento de ${escapeHtml(item.usuario)}: ${escapeHtml(item.resumo)}">Abrir →</button></td>
       </tr>`).join("");
     queueBody.querySelectorAll("tr").forEach((row) => {
       const open = () => openDetails(row.dataset.id);
       row.addEventListener("click", open);
       row.addEventListener("keydown", (event) => {
+        if (event.target !== row) return;
         if (event.key === "Enter" || event.key === " ") { event.preventDefault(); open(); }
       });
     });
@@ -139,9 +141,13 @@
         const cells = window.COEH_MESSAGES?.[line];
         return `<details><summary>Linha ${escapeHtml(line)} · ${escapeHtml(cells?.[1] || item.usuario)}</summary><p class="detail-copy">${escapeHtml(cells?.[2] || "Consulte a planilha original.")}</p></details>`;
       }).join("")}</section>
-      <section class="detail-section"><h3>Próximo passo sugerido</h3><p class="detail-copy">${escapeHtml(item.proximo_passo)}</p></section>
+      <section class="detail-section next-step"><h3>1. Confira o próximo passo</h3><p class="detail-copy">${escapeHtml(item.proximo_passo)}</p><p class="form-hint">Sugestão da IA. Confirme as informações antes de executar.</p></section>
       <section class="detail-section"><h3>Revisão humana</h3><p class="detail-copy">${item.revisao_necessaria === "sim" ? "Necessária antes de decidir ou executar." : "Classificação com evidência suficiente; a execução ainda exige confirmação operacional."}</p></section>
-      <section class="detail-section"><h3>Registrar decisão humana</h3>${apiAvailable ? decisionForm(item) : '<p class="offline-note">Abra o painel pelo servidor local para registrar uma decisão. No modo arquivo, a demonstração é somente leitura.</p>'}</section>`;
+      <section class="detail-section action-section"><h3>2. Registre o andamento</h3>${apiAvailable ? decisionForm(item) : '<p class="offline-note">Abra o painel pelo servidor local para registrar uma decisão. No modo arquivo, a demonstração é somente leitura.</p>'}</section>`;
+    const content = document.querySelector("#detail-content");
+    const secondSection = content.children[1];
+    content.insertBefore(content.querySelector(".next-step"), secondSection);
+    content.insertBefore(content.querySelector(".action-section"), secondSection);
     detailPanel.classList.add("is-open");
     detailPanel.setAttribute("aria-hidden", "false");
     scrim.hidden = false;
@@ -156,38 +162,37 @@
 
   function decisionForm(item) {
     return `<form class="decision-form" id="decision-form" novalidate>
-      <div class="decision-type" aria-label="Tipo de decisão">
-        <button class="choice-button" type="button" data-event-type="assumir" aria-pressed="false">Assumir atendimento</button>
-        <button class="choice-button" type="button" data-event-type="andamento" aria-pressed="false">Registrar andamento</button>
-        <button class="choice-button" type="button" data-event-type="dependencia_interna" aria-pressed="false">Aguardar equipe</button>
-        <button class="choice-button" type="button" data-event-type="correcao_prioridade" aria-pressed="true">Corrigir prioridade</button>
-        <button class="choice-button" type="button" data-event-type="aguardar_informacao" aria-pressed="false">Aguardar informação</button>
-        <button class="choice-button" type="button" data-event-type="conclusao" aria-pressed="false">Concluir</button>
-      </div>
-      <div class="form-field" id="priority-field"><span>Nova prioridade</span><div class="priority-options" aria-label="Nova prioridade">
+      <label class="form-field"><span>O que você quer registrar?</span><select id="decision-type">
+        <option value="assumir">Vou assumir este atendimento</option>
+        <option value="andamento">Fiz uma ação e quero registrar</option>
+        <option value="aguardar_informacao">Preciso de informação do cliente</option>
+        <option value="dependencia_interna">Dependo de alguém da equipe</option>
+        <option value="correcao_prioridade">Preciso corrigir a prioridade</option>
+        <option value="conclusao">Confirmei a conclusão</option>
+      </select></label>
+      <div class="form-field" id="priority-field" hidden><span>Nova prioridade</span><div class="priority-options" aria-label="Nova prioridade">
         ${["P0", "P1", "P2", "P3"].map((priority) => `<button class="choice-button" type="button" data-new-priority="${priority}" aria-pressed="${item.prioridade === priority}">${priority}</button>`).join("")}
       </div></div>
       <label class="form-field" id="return-field" hidden><span>Retorno combinado, horário de Brasília</span><input id="return-at" type="datetime-local" /></label>
-      <label class="form-field"><span>Responsável</span><input id="event-author" name="author" value="operador" maxlength="80" autocomplete="name" /></label>
-      <label class="form-field"><span>Motivo da decisão</span><textarea id="event-reason" name="reason" minlength="10" maxlength="600" required></textarea></label>
+      <label class="form-field"><span>Seu nome</span><input id="event-author" name="author" value="operador" maxlength="80" autocomplete="name" /></label>
+      <label class="form-field"><span>O que foi feito ou o que está faltando?</span><textarea id="event-reason" name="reason" minlength="10" maxlength="600" placeholder="Descreva a ação, a informação pendente ou o motivo da mudança." required></textarea></label>
       <p class="form-hint">A decisão será adicionada ao histórico. Nenhuma mensagem original será alterada.</p>
       <p class="form-error" id="form-error" role="alert" hidden></p>
-      <button class="save-button" id="save-decision" type="submit">Registrar decisão</button>
+      <button class="save-button" id="save-decision" type="submit">Salvar registro no histórico</button>
     </form>`;
   }
 
   function bindDecisionForm(item) {
     const form = document.querySelector("#decision-form");
-    let eventType = "correcao_prioridade";
+    let eventType = "assumir";
     let priority = item.prioridade;
     let pendingKey = null;
     let pendingBody = null;
-    form.querySelectorAll("[data-event-type]").forEach((button) => button.addEventListener("click", () => {
-      eventType = button.dataset.eventType;
-      form.querySelectorAll("[data-event-type]").forEach((candidate) => candidate.setAttribute("aria-pressed", String(candidate === button)));
+    form.querySelector("#decision-type").addEventListener("change", (event) => {
+      eventType = event.target.value;
       document.querySelector("#priority-field").hidden = eventType !== "correcao_prioridade";
       document.querySelector("#return-field").hidden = !["aguardar_informacao", "dependencia_interna", "andamento"].includes(eventType);
-    }));
+    });
     form.querySelectorAll("[data-new-priority]").forEach((button) => button.addEventListener("click", () => {
       priority = button.dataset.newPriority;
       form.querySelectorAll("[data-new-priority]").forEach((candidate) => candidate.setAttribute("aria-pressed", String(candidate === button)));
@@ -277,7 +282,7 @@
   });
 
   function trapPanelFocus(event) {
-    const focusable = [...detailPanel.querySelectorAll('button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')];
+    const focusable = [...detailPanel.querySelectorAll('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])')].filter((element) => element.getClientRects().length);
     if (!focusable.length) return;
     const first = focusable[0];
     const last = focusable[focusable.length - 1];

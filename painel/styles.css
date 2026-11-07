@@ -30,7 +30,7 @@ html { background: var(--canvas); color: var(--ink); }
 
 body { margin: 0; min-width: 320px; font-size: 16px; line-height: 1.45; }
 
-button, input { font: inherit; }
+button, input, select, textarea { font: inherit; }
 
 button { cursor: pointer; }
 
@@ -211,6 +211,16 @@ tbody tr { cursor: pointer; }
 .detail-header span { color: var(--muted); font-size: 0.78rem; }
 .close-button { border-color: var(--border-strong); color: var(--ink); background: var(--surface); }
 .detail-content { padding: 22px 20px 40px; }
+.detail-content { display: flex; flex-direction: column; }
+.detail-content > .detail-section { order: 4; }
+.detail-content > .detail-section:first-child { order: 0; }
+.detail-content > .next-step { order: 1; padding: 16px; background: var(--accent-soft); border: 1px solid var(--border-strong); border-radius: 6px; }
+.detail-content > .action-section { order: 2; }
+.next-step .form-hint { margin-top: 8px; }
+.open-attendance { min-height: 44px; white-space: nowrap; padding: 8px 12px; border: 1px solid var(--border-strong); border-radius: 4px; color: var(--ink); background: var(--surface); font-weight: 600; }
+.open-attendance:hover { background: var(--accent-soft); border-color: var(--accent); }
+.form-field select { width: 100%; min-height: 46px; padding: 10px; background: var(--surface); color: var(--ink); border: 1px solid var(--border-strong); border-radius: var(--radius); }
+select:focus-visible, textarea:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .detail-section { padding: 18px 0; border-bottom: 1px solid var(--border); }
 .detail-section:first-child { padding-top: 0; }
 .detail-section h3 { margin: 0 0 10px; font-size: 0.9rem; }
@@ -230,7 +240,7 @@ tbody tr { cursor: pointer; }
   color: var(--ink);
   background: var(--surface);
 }
-.choice-button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: #0c5447; font-weight: 650; }
+.choice-button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); font-weight: 650; }
 .form-field { display: grid; gap: 5px; }
 .form-field > span { color: var(--muted); font-size: 0.78rem; }
 .form-field input, .form-field textarea {
