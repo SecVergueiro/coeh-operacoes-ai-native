@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Novo protótipo interativo da operação Coeh">
+  <title>Atendimentos · Coeh | Novo protótipo</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+    <symbol id="i-inbox" viewBox="0 0 24 24"><path d="m4 4-2 10v6h20v-6L20 4Z M2 14h6l2 3h4l2-3h6"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5m5-5-5 5 5 5"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+    <symbol id="i-message" viewBox="0 0 24 24"><path d="M21 15a3 3 0 0 1-3 3H8l-5 3V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3Z M7 8h10M7 12h7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16M8 4v6m8 4v6"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="m12 3 10 18H2Z M12 9v5m0 3v1"/></symbol>
+  </defs></svg>
+  <a class="skip" href="#workspace">Ir para atendimentos</a>
+  <aside class="sidebar" id="sidebar" aria-label="Navegação da operação">
+    <div class="brand"><img src="assets/coeh.svg" alt="Coeh" width="120" height="29"><button class="icon-button mobile-close" id="close-nav" aria-label="Fechar navegação"><svg><use href="#i-close"/></svg></button></div>
+    <div class="workspace-name"><span class="workspace-mark">op</span><div><strong>Operações</strong><span>Espaço de trabalho</span></div></div>
+    <p class="nav-label">Atendimentos</p>
+    <nav id="navigation">
+      <button class="nav-item" data-view="active" aria-current="page"><svg><use href="#i-inbox"/></svg><span>Em aberto</span><span class="nav-count" id="count-active">15</span></button>
+      <button class="nav-item" data-view="waiting"><svg><use href="#i-clock"/></svg><span>Aguardando</span><span class="nav-count" id="count-waiting">2</span></button>
+      <button class="nav-item" data-view="closed"><svg><use href="#i-check"/></svg><span>Encerrados</span><span class="nav-count" id="count-closed">7</span></button>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="demo-context"><span class="small-dot"></span><strong>Base do desafio</strong><p>96 mensagens organizadas<br>em 22 atendimentos.</p></div>
+      <button class="help-button" id="about-button"><svg><use href="#i-info"/></svg>Sobre o protótipo</button>
+      <div class="operator"><span class="operator-avatar">OP</span><div><strong>Operação Coeh</strong><span>Revisão humana</span></div></div>
+    </div>
+  </aside>
+  <button id="nav-scrim" class="nav-scrim" aria-label="Fechar navegação" hidden></button>
+  <main class="main" id="workspace">
+    <header class="page-header">
+      <div class="page-location"><button class="icon-button mobile-menu" id="open-nav" aria-label="Abrir navegação"><svg><use href="#i-menu"/></svg></button><span>Operações</span><span class="slash">/</span><strong>Atendimentos</strong></div>
+      <span class="prototype-label">Protótipo interativo</span>
+    </header>
+    <section class="page-heading" aria-labelledby="page-title">
+      <div><h1 id="page-title">Vamos organizar a fila.</h1><p>Um pedido por vez. Comece pelo que precisa de atenção agora.</p></div>
+      <div class="analysis-date"><svg><use href="#i-clock"/></svg><div><span>Corte da análise</span><strong>05 nov 2026, 16h <small>Brasília</small></strong></div></div>
+    </section>
+    <div class="inbox" id="inbox">
+      <section class="queue" aria-labelledby="queue-title">
+        <div class="queue-top"><div><h2 id="queue-title">Em aberto <span id="queue-count">15</span></h2><p id="queue-description">Organizados por prioridade</p></div><button class="icon-button" id="priority-guide" aria-label="Entender as prioridades"><svg><use href="#i-sliders"/></svg></button></div>
+        <label class="search-box"><svg><use href="#i-search"/></svg><input id="search" type="search" placeholder="Buscar pessoa, empresa ou pedido" aria-label="Buscar atendimento" autocomplete="off"></label>
+        <div class="priority-filter" role="group" aria-label="Filtrar prioridade"><button data-priority="all" aria-pressed="true">Todos</button><button data-priority="P0" aria-pressed="false">Agora <span id="urgent-count">3</span></button><button data-priority="other" aria-pressed="false">Demais</button></div>
+        <div id="queue-list" class="queue-list"></div>
+        <div class="queue-empty" id="queue-empty" hidden><svg><use href="#i-search"/></svg><h3>Nenhum pedido por aqui</h3><p>Tente outro termo ou remova o filtro.</p><button class="button secondary" id="clear-search">Limpar busca e filtro</button></div>
+        <div class="queue-footer"><svg><use href="#i-sliders"/></svg><span>Prazo, impacto e bloqueios definem a ordem.</span></div>
+      </section>
+      <section class="ticket" id="ticket" aria-label="Atendimento selecionado"></section>
+    </div>
+    <p class="prototype-footnote">Protótipo de design. Os registros de teste ficam apenas nesta aba.</p>
+  </main>
+  <dialog id="action-dialog" aria-labelledby="action-title">
+    <form id="action-form" novalidate>
+      <header class="dialog-header"><div><p class="dialog-context" id="action-context"></p><h2 id="action-title">Registrar andamento</h2></div><button type="button" class="icon-button" data-close-dialog aria-label="Fechar formulário"><svg><use href="#i-close"/></svg></button></header>
+      <div class="dialog-body">
+        <label class="field">Tipo de registro<select id="event-type"><option value="andamento">Registrar uma ação realizada</option><option value="assumir">Assumir atendimento</option><option value="aguardar_informacao">Aguardar informação do cliente</option><option value="dependencia_interna">Aguardar equipe interna</option><option value="correcao_prioridade">Corrigir prioridade</option><option value="conclusao">Confirmar conclusão</option></select></label>
+        <label class="field" id="priority-field" hidden>Nova prioridade<select id="new-priority"><option value="P0">P0 · Agir agora</option><option value="P1">P1 · Em seguida</option><option value="P2">P2 · Planejar</option><option value="P3">P3 · Acompanhar</option></select></label>
+        <label class="field">Seu nome<input id="author" autocomplete="name" placeholder="Quem está registrando?" maxlength="80" required></label>
+        <label class="field"><span id="reason-label">O que foi feito?</span><textarea id="reason" rows="3" placeholder="Descreva a ação ou a informação que está faltando." maxlength="600" aria-describedby="reason-help" required></textarea></label>
+        <span id="reason-help" class="field-help">Use pelo menos 10 caracteres para deixar um registro útil.</span>
+        <label class="field" id="return-field" hidden>Retorno combinado <span class="optional">Opcional, horário de Brasília</span><input id="return-at" type="datetime-local"></label>
+        <p id="form-error" class="form-error" role="alert" hidden></p>
+        <p class="simulation-note"><svg><use href="#i-info"/></svg>Simulação. Não altera os dados originais do desafio.</p>
+      </div>
+      <footer class="dialog-footer"><button class="button secondary" type="button" data-close-dialog>Cancelar</button><button class="button primary" type="submit" id="save-record">Salvar registro</button></footer>
+    </form>
+  </dialog>
+  <dialog id="info-dialog" aria-labelledby="info-title"><div class="dialog-header"><h2 id="info-title">Sobre o protótipo</h2><button class="icon-button" id="close-info" aria-label="Fechar explicação"><svg><use href="#i-close"/></svg></button></div><div class="dialog-body" id="info-content"></div></dialog>
+  <div class="toast" id="toast" role="status" hidden><svg><use href="#i-check"/></svg><span></span></div>
+  <script src="../data.js"></script>
+  <script src="../mensagens.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
