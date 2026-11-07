@@ -22,7 +22,7 @@ Conferência requisito por requisito e limites da validação: `docs/conferencia
 - [x] painel para demonstração
 - [x] verificações reproduzíveis
 - [ ] vídeo final de até cinco minutos
-- [ ] repositório privado criado no GitHub
+- [x] repositório privado criado no GitHub: https://github.com/SecVergueiro/coeh-operacoes-ai-native
 - [ ] acesso concedido à conta correta do Lucca
 
 ## Antes de publicar

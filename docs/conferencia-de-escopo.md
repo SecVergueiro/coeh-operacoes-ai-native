@@ -15,7 +15,7 @@ Fonte: dados/originais/Projeto Coeh Operacoes.docx. Conferência em 06/11/2026.
 | Interpretação inadequada e correção | Otavio: EVT-001 e exemplos/entrada-saida-revisao.md | Demonstrado como evento simulado |
 | Repetir sem duplicar e continuar em nova sessão | AGENTS.md; docs/continuidade.md; parâmetros do validador | Procedimento explícito; sem alegação de teste independente com outro agente |
 | Uso da IA, exemplos e limitações | docs/uso-da-ia-e-limitacoes.md; exemplos/ | Incluídos |
-| Repositório privado na conta do candidato e acesso a Lucca | Publicação externa | Pendente |
+| Repositório privado na conta do candidato e acesso a Lucca | https://github.com/SecVergueiro/coeh-operacoes-ai-native | Repositório privado publicado; acesso de Lucca pendente do usuário exato |
 | Vídeo até cinco minutos | demo/fala-video.md e roteiro.md | Roteiro pronto; gravação pendente |
 
 ## Evidências executadas
