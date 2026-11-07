@@ -21,6 +21,7 @@ Permitir que a operação:
 4. Veja a fila inicial em `resultados/rodada-1/fila.csv`.
 5. Veja os eventos manuais em `dados/eventos-manuais.csv`.
 6. Veja a fila revisada em `resultados/rodada-2/fila.csv`.
+7. Abra `painel/index.html` para navegar pela fila final.
 
 ## Estrutura
 
@@ -34,7 +35,18 @@ resultados/rodada-1/   corte de 04/11/2026 às 18h
 resultados/rodada-2/   corte de 05/11/2026 às 16h
 demo/                  roteiro da demonstração em vídeo
 scripts/               verificações determinísticas de integridade
+painel/                visualização local da fila, sem servidor ou credenciais
 ```
+
+## Painel local
+
+O painel é uma visualização estática do estado atual. Para atualizar seus dados depois de alterar a fila:
+
+```bash
+python scripts/gerar_painel.py
+```
+
+Depois, abra `painel/index.html`. A tela permite pesquisar, filtrar prioridades e situações e abrir os detalhes de cada atendimento. O painel não modifica o estado; decisões continuam sendo registradas em `dados/eventos-manuais.csv`.
 
 ## Princípio central
 

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Demonstração da fila operacional AI-native da Coeh" />
+    <title>Fila operacional · Coeh</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#fila">Ir para a fila</a>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Demonstração do desafio de operações</p>
+        <h1>Fila operacional</h1>
+      </div>
+      <div class="cutoff">
+        <span>Estado da análise</span>
+        <strong>05 nov 2026 · 16h BRT</strong>
+      </div>
+    </header>
+
+    <main>
+      <section class="overview" aria-labelledby="visao-geral">
+        <div class="overview-copy">
+          <h2 id="visao-geral">O que pede ação agora</h2>
+          <p>A ordem combina prazo, impacto, bloqueio e cobranças. A IA sugere; a operação confirma.</p>
+        </div>
+        <dl class="metrics" id="metrics"></dl>
+      </section>
+
+      <section class="workspace" aria-labelledby="titulo-fila">
+        <div class="toolbar">
+          <div>
+            <h2 id="titulo-fila">Atendimentos</h2>
+            <p id="result-count" aria-live="polite"></p>
+          </div>
+          <label class="search-field">
+            <span>Buscar na fila</span>
+            <input id="search" type="search" placeholder="Cliente, empresa ou assunto" autocomplete="off" />
+          </label>
+        </div>
+
+        <div class="filter-row" aria-label="Filtros da fila">
+          <div class="filter-group" aria-label="Filtrar por prioridade">
+            <span class="filter-label">Prioridade</span>
+            <button class="filter-button is-active" type="button" data-priority="all" aria-pressed="true">Todas</button>
+            <button class="filter-button" type="button" data-priority="P0" aria-pressed="false">P0</button>
+            <button class="filter-button" type="button" data-priority="P1" aria-pressed="false">P1</button>
+            <button class="filter-button" type="button" data-priority="P2" aria-pressed="false">P2</button>
+            <button class="filter-button" type="button" data-priority="P3" aria-pressed="false">P3</button>
+          </div>
+          <div class="filter-group" aria-label="Filtrar por situação">
+            <span class="filter-label">Situação</span>
+            <button class="filter-button is-active" type="button" data-scope="active" aria-pressed="true">Ativos</button>
+            <button class="filter-button" type="button" data-scope="all" aria-pressed="false">Todos</button>
+            <button class="filter-button" type="button" data-scope="closed" aria-pressed="false">Encerrados</button>
+          </div>
+        </div>
+
+        <div class="table-wrap" id="fila">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Ordem</th>
+                <th scope="col">Prioridade</th>
+                <th scope="col">Cliente e empresa</th>
+                <th scope="col">Atendimento</th>
+                <th scope="col">Prazo</th>
+                <th scope="col">Situação</th>
+              </tr>
+            </thead>
+            <tbody id="queue-body"></tbody>
+          </table>
+          <div class="empty-state" id="empty-state" hidden>
+            <strong>Nenhum atendimento encontrado.</strong>
+            <span>Ajuste a busca ou limpe os filtros.</span>
+            <button id="clear-filters" type="button">Limpar filtros</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="decision-log" aria-labelledby="decisoes-humanas">
+        <div>
+          <h2 id="decisoes-humanas">Decisões humanas preservadas</h2>
+          <p>Esses eventos ficam separados das mensagens e têm precedência sobre sugestões da IA.</p>
+        </div>
+        <ol id="event-list"></ol>
+      </section>
+    </main>
+
+    <aside class="detail-panel" id="detail-panel" aria-labelledby="detail-title" aria-hidden="true">
+      <div class="detail-header">
+        <div>
+          <span id="detail-id"></span>
+          <h2 id="detail-title">Detalhes do atendimento</h2>
+        </div>
+        <button class="close-button" id="close-detail" type="button" aria-label="Fechar detalhes">Fechar</button>
+      </div>
+      <div class="detail-content" id="detail-content"></div>
+    </aside>
+    <div class="scrim" id="scrim" hidden></div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

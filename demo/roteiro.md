@@ -10,7 +10,7 @@ Abrir `AGENTS.md`, mostrar a ordem de leitura, as regras contra duplicidade e a 
 
 ## 1:25–2:10 — rodada 1
 
-Abrir `resultados/rodada-1/fila.csv`. Destacar:
+Abrir `resultados/rodada-1/fila.csv` e explicar que ele preserva o resultado reproduzível. Destacar:
 
 - Mauro: repetição não criou outra tarefa;
 - Ana e Gabi: pedidos distintos foram separados;
@@ -29,7 +29,7 @@ Explicar que esses eventos ficam separados das mensagens e não são apagados.
 
 ## 3:05–4:20 — rodada 2
 
-Abrir `resultados/rodada-2/fila.csv`. Mostrar que:
+Abrir `painel/index.html`, filtrar P0 e abrir um atendimento. Mostrar que:
 
 - Lia e Paula receberam nova urgência;
 - dados novos de Ana permitem sair de `aguardando_cliente`;
