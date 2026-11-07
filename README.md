@@ -60,6 +60,12 @@ O protótipo aprovado permanece separado em `painel/prototipo/` como referência
 
 Para continuar com mensagens adicionais em outra sessão, siga `docs/continuidade.md`. As duas filas em `resultados/` são resultados salvos, e EVT-001 a EVT-003 são eventos simulados. O painel não chama LLM: a IA participa pela sessão que usa AGENTS.md e os prompts, com revisão antes de salvar. Python 3.11 ou superior é necessário apenas para servidor e verificações; a leitura dos materiais não exige credenciais ou dependências externas.
 
+## Demonstração online
+
+O link da Vercel é uma demonstração de consulta com a fila da segunda rodada, as mensagens fictícias e os três eventos simulados. Os registros de novas ações continuam disponíveis via `python -m backend`.
+
+Para publicar, importe o repositório privado na Vercel pelo escopo pessoal e mantenha a raiz na pasta do repositório. `vercel.json` define a configuração. O comando `node scripts/preparar-vercel.cjs` gera o pacote em `work/vercel-public/` sem dependências ou credenciais de aplicativo. Confira se o domínio abre sem autenticação, a busca encontra atendimentos e as abas de mensagens e histórico carregam. Para voltar a uma versão anterior, promova o último deploy válido no painel da Vercel.
+
 ## Verificações
 
 ```bash

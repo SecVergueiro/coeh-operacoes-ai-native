@@ -5,6 +5,7 @@
   let connection = "loading";
   let saving = false;
   let pendingSubmission = null;
+  const publicDemo = Boolean(document.querySelector('meta[name="coeh-mode"][content="public-demo"]'));
   const source = window.COEH_MESSAGES || {};
   const active = new Set(["novo", "em_analise", "aguardando_cliente", "aguardando_interno", "retorno_agendado"]);
   const waiting = new Set(["aguardando_cliente", "aguardando_interno", "retorno_agendado"]);
@@ -102,12 +103,14 @@
     document.querySelectorAll('#ticket [data-action]').forEach((button) => { button.disabled = connection !== "ready" || saving; });
     $("#refresh-state").disabled = connection === "loading" || saving;
     $("#connection-label").dataset.mode = connection;
-    $("#connection-label").textContent = connection === "ready" ? "Registros salvos" : connection === "loading" ? "Carregando registros…" : "Somente leitura";
+    $("#connection-label").textContent = publicDemo ? "Demonstração" : connection === "ready" ? "Registros salvos" : connection === "loading" ? "Carregando registros…" : "Somente leitura";
   }
   async function loadState() {
-    if (location.protocol === "file:") {
+    if (publicDemo || location.protocol === "file:") {
       connection = "readonly";
-      $("#connection-message").textContent = "Você está vendo uma cópia da demonstração. Abra pelo servidor local para registrar o andamento.";
+      $("#connection-message").textContent = publicDemo
+        ? "Demonstração com dados fictícios. Explore a fila, as mensagens e o histórico. O registro de novas ações fica disponível na versão local."
+        : "Você está vendo uma cópia da demonstração. Abra pelo servidor local para registrar o andamento.";
       $("#connection-banner").hidden = false; $("#retry-state").hidden = true;
       $("#refresh-state").hidden = true; syncAccess(); return;
     }
