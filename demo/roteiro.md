@@ -39,4 +39,4 @@ Abrir `painel/index.html`, filtrar P0 e abrir um atendimento. Mostrar que:
 
 ## 4:20–5:00 — continuidade e limites
 
-Executar `python scripts/validar_estado.py`. Explicar que uma nova sessão começa por `AGENTS.md`, lê estado e eventos, acrescenta novas mensagens e repete a validação. Reforçar que a IA sugere; o operador confirma ações nos sistemas reais.
+Executar `python scripts/validar_estado.py` e citar a auditoria de regras. Explicar que uma nova sessão começa por `AGENTS.md`, lê estado e eventos, acrescenta novas mensagens e repete as verificações. Reforçar que a IA sugere; o operador confirma ações nos sistemas reais.

@@ -29,3 +29,4 @@
 - As 96 mensagens possuem ao menos um vínculo.
 - IDs de atendimento e evento são únicos.
 - `scripts/validar_estado.py` termina com `VALIDAÇÃO: APROVADA`.
+- `scripts/auditar_regras.py` termina com `AUDITORIA DE REGRAS: APROVADA`.

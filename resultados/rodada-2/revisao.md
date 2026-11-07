@@ -6,8 +6,8 @@ Foram incorporadas as linhas 65 a 97. A fila passou a 22 atendimentos porque a n
 
 ## Mudanças importantes
 
-- Lia, Paula, Ana e Elisa passam a P0 por prazo vencido/no mesmo dia ou risco imediato de bloqueio.
-- Kelly, Nina e Fabio passam a P1 por prazos ou riscos em 06/11.
+- Lia, Paula e Ana passam a P0 por prazo vencido ou no mesmo dia.
+- Elisa, Kelly, Nina e Fabio ficam em P1 por prazos ou riscos em 06/11; Elisa ainda possui acesso no momento do corte, portanto o bloqueio é risco próximo, não bloqueio ativo.
 - A evidência nova de Ana — dados enviados por e-mail às 8h — permite substituir a espera por informação por conferência interna, sem apagar `EVT-002`.
 - O atendimento de Bruno continua concluído e não foi duplicado.
 - A prioridade corrigida de Otavio permanece P3; a mensagem nova confirma que a entrega até 18/11 é suficiente.

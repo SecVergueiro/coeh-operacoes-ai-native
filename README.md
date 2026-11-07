@@ -48,6 +48,15 @@ python scripts/gerar_painel.py
 
 Depois, abra `painel/index.html`. A tela permite pesquisar, filtrar prioridades e situações e abrir os detalhes de cada atendimento. O painel não modifica o estado; decisões continuam sendo registradas em `dados/eventos-manuais.csv`.
 
+## Verificações
+
+```bash
+python scripts/validar_estado.py
+python scripts/auditar_regras.py
+```
+
+O primeiro comando verifica estrutura, IDs e cobertura das mensagens. O segundo protege os casos de domínio que não podem regredir, como pedidos separados, cancelamentos e correções humanas.
+
 ## Princípio central
 
 A IA nunca confirma que uma ação real foi executada apenas com base no relato do cliente. Ela pode sugerir classificação, prioridade, vínculo e próximo passo. A pessoa de operações consulta os sistemas reais, toma a decisão e registra um evento manual.

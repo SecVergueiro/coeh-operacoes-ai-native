@@ -41,7 +41,7 @@ Você auxilia a operação da Coeh a transformar mensagens em atendimentos. Voc�
 5. Calcule novamente a prioridade apenas com dados disponíveis até o corte.
 6. Aplique eventos humanos; não os sobrescreva silenciosamente.
 7. Gere fila ordenada e relatório de revisão.
-8. Rode `python scripts/validar_estado.py`.
+8. Rode `python scripts/validar_estado.py` e `python scripts/auditar_regras.py`.
 
 ## Saída mínima de cada decisão da IA
 
