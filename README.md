@@ -21,7 +21,7 @@ Permitir que a operação:
 4. Veja a fila inicial em `resultados/rodada-1/fila.csv`.
 5. Veja os eventos manuais em `dados/eventos-manuais.csv`.
 6. Veja a fila revisada em `resultados/rodada-2/fila.csv`.
-7. Abra `painel/index.html` para navegar pela fila final.
+7. Execute `python -m backend` e abra `http://127.0.0.1:8765` para navegar e registrar decisões.
 
 ## Estrutura
 
@@ -40,19 +40,26 @@ painel/                visualização local da fila, sem servidor ou credenciais
 
 ## Painel local
 
-O painel é uma visualização estática do estado atual. Para atualizar seus dados depois de alterar a fila:
+O painel funciona de duas formas:
+
+- `python -m backend`: modo completo, com registro de decisões humanas;
+- abrir `painel/index.html`: fallback somente leitura, sem servidor.
+
+Para atualizar o snapshot depois de alterar a fila:
 
 ```bash
 python scripts/gerar_painel.py
 ```
 
-Depois, abra `painel/index.html`. A tela permite pesquisar, filtrar prioridades e situações e abrir os detalhes de cada atendimento. O painel não modifica o estado; decisões continuam sendo registradas em `dados/eventos-manuais.csv`.
+No modo completo, a tela permite pesquisar, filtrar, abrir detalhes e registrar correção de prioridade, espera por informação ou conclusão. Eventos novos são gravados em `dados/estado/eventos-runtime.csv`; mensagens e resultados originais permanecem intactos.
 
 ## Verificações
 
 ```bash
 python scripts/validar_estado.py
 python scripts/auditar_regras.py
+python -m unittest discover -s tests -v
+python scripts/benchmark_local.py
 ```
 
 O primeiro comando verifica estrutura, IDs e cobertura das mensagens. O segundo protege os casos de domínio que não podem regredir, como pedidos separados, cancelamentos e correções humanas.

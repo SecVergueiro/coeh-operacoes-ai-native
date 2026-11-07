@@ -1,0 +1,1 @@
+evento_id,atendimento_id,ocorrido_em,autor,tipo,campo,valor_anterior,valor_novo,motivo,retorno_em,idempotency_key

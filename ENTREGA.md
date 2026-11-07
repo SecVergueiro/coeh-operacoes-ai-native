@@ -25,7 +25,7 @@
 
 ## Antes de publicar
 
-1. Abrir `painel/index.html` no navegador.
+1. Executar `python -m backend` e abrir `http://127.0.0.1:8765` no navegador.
 2. Testar busca, filtros, abertura e fechamento dos detalhes.
 3. Conferir o painel em janela larga e estreita.
 4. Executar:
@@ -34,6 +34,7 @@
 python scripts/gerar_painel.py
 python scripts/validar_estado.py
 python scripts/auditar_regras.py
+python -m unittest discover -s tests -v
 ```
 
 5. Confirmar que `git status` está limpo.

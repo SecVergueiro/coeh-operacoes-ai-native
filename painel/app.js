@@ -1,26 +1,58 @@
 (() => {
   "use strict";
 
-  const data = window.COEH_DATA;
+  const snapshot = window.COEH_DATA;
+  let data = snapshot;
+  let apiAvailable = false;
+  let noticeTimer = null;
   const activeStatuses = new Set(["novo", "em_analise", "aguardando_cliente", "aguardando_interno", "retorno_agendado"]);
   const closedStatuses = new Set(["concluido", "cancelado", "sem_acao"]);
   const state = { priority: "all", scope: "active", query: "", selectedId: null };
-
   const queueBody = document.querySelector("#queue-body");
   const resultCount = document.querySelector("#result-count");
   const emptyState = document.querySelector("#empty-state");
   const detailPanel = document.querySelector("#detail-panel");
   const scrim = document.querySelector("#scrim");
   const search = document.querySelector("#search");
+  const notice = document.querySelector("#notice");
+  const modeIndicator = document.querySelector("#mode-indicator");
 
   const normalize = (value) => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   const label = (value) => String(value || "não informado").replaceAll("_", " ");
-  const escapeHtml = (value) => String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+  const escapeHtml = (value) => String(value ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+
+  function normalizeApiState(payload) {
+    return { gerado_em: payload.generated_at, fuso: payload.timezone, atendimentos: payload.attendances, eventos: payload.events };
+  }
+
+  async function loadData() {
+    if (location.protocol === "file:") {
+      modeIndicator.textContent = "Modo leitura · snapshot local";
+      return;
+    }
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 2500);
+    try {
+      const response = await fetch("/api/v1/state", { signal: controller.signal, headers: { Accept: "application/json" } });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      data = normalizeApiState(await response.json());
+      apiAvailable = true;
+      modeIndicator.textContent = "Servidor ativo · decisões habilitadas";
+    } catch (error) {
+      data = snapshot;
+      modeIndicator.textContent = "Modo degradado · snapshot local";
+      showNotice("O servidor não respondeu. A fila continua disponível para leitura.", true);
+    } finally {
+      window.clearTimeout(timeout);
+      renderAll();
+    }
+  }
+
+  function renderAll() {
+    renderMetrics();
+    renderEvents();
+    renderQueue();
+  }
 
   function renderMetrics() {
     const active = data.atendimentos.filter((item) => activeStatuses.has(item.status));
@@ -30,9 +62,7 @@
       ["Ativos", String(active.length)],
       ["P0 + P1", String(active.filter((item) => item.prioridade === "P0" || item.prioridade === "P1").length)],
     ];
-    document.querySelector("#metrics").innerHTML = metrics.map(([name, value]) => `
-      <div class="metric"><dt>${name}</dt><dd>${value}</dd></div>
-    `).join("");
+    document.querySelector("#metrics").innerHTML = metrics.map(([name, value]) => `<div class="metric"><dt>${escapeHtml(name)}</dt><dd>${escapeHtml(value)}</dd></div>`).join("");
   }
 
   function filteredItems() {
@@ -51,6 +81,7 @@
       return `${day}/${month}/${year}`;
     }
     const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "Prazo inválido";
     return new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" }).format(date);
   }
 
@@ -59,36 +90,34 @@
     resultCount.textContent = `${items.length} ${items.length === 1 ? "atendimento exibido" : "atendimentos exibidos"}`;
     emptyState.hidden = items.length !== 0;
     queueBody.innerHTML = items.map((item) => `
-      <tr tabindex="0" data-id="${item.atendimento_id}" data-selected="${state.selectedId === item.atendimento_id}">
+      <tr tabindex="0" data-id="${escapeHtml(item.atendimento_id)}" data-selected="${state.selectedId === item.atendimento_id}">
         <td class="order">${escapeHtml(String(item.ordem).padStart(2, "0"))}</td>
         <td class="priority-cell"><span class="priority-mark priority-${escapeHtml(item.prioridade)}">${escapeHtml(item.prioridade)}</span></td>
         <td class="client"><strong>${escapeHtml(item.usuario)}</strong><span>${escapeHtml(item.empresa || "Empresa não informada")}</span></td>
         <td class="summary"><strong>${escapeHtml(item.resumo)}</strong><span>${escapeHtml(label(item.categoria))}</span></td>
         <td class="deadline">${escapeHtml(deadline(item.prazo))}</td>
         <td class="status">${escapeHtml(label(item.status))}</td>
-      </tr>
-    `).join("");
-
+      </tr>`).join("");
     queueBody.querySelectorAll("tr").forEach((row) => {
       const open = () => openDetails(row.dataset.id);
       row.addEventListener("click", open);
       row.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          open();
-        }
+        if (event.key === "Enter" || event.key === " ") { event.preventDefault(); open(); }
       });
     });
   }
 
   function renderEvents() {
     document.querySelector("#event-list").innerHTML = data.eventos.map((event) => `
-      <li>
-        <span class="event-meta">${escapeHtml(event.evento_id)} · ${escapeHtml(event.atendimento_id)} · ${escapeHtml(new Date(event.ocorrido_em).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" }))}</span>
-        <span class="event-title">${escapeHtml(label(event.tipo))}: ${escapeHtml(label(event.valor_novo))}</span>
-        <p class="event-reason">${escapeHtml(event.motivo)}</p>
-      </li>
-    `).join("");
+      <li><span class="event-meta">${escapeHtml(event.evento_id)} · ${escapeHtml(event.atendimento_id)} · ${escapeHtml(formatEventTime(event.ocorrido_em))}</span>
+      <span class="event-title">${escapeHtml(label(event.tipo))}: ${escapeHtml(label(event.valor_novo))}</span>
+      <p class="event-reason">${escapeHtml(event.motivo)}</p></li>`).join("");
+  }
+
+  function formatEventTime(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "horário não informado";
+    return date.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
   }
 
   function openDetails(id) {
@@ -98,29 +127,106 @@
     document.querySelector("#detail-id").textContent = `${item.atendimento_id} · ${item.prioridade}`;
     document.querySelector("#detail-title").textContent = item.resumo;
     document.querySelector("#detail-content").innerHTML = `
-      <section class="detail-section">
-        <div class="detail-grid">
-          ${field("Cliente", item.usuario)}
-          ${field("Empresa", item.empresa || "Não informada")}
-          ${field("Categoria", label(item.categoria))}
-          ${field("Situação", label(item.status))}
-          ${field("Prazo", deadline(item.prazo))}
-          ${field("Mensagens", item.linhas_mensagem.replaceAll("|", ", "))}
-        </div>
-      </section>
+      <section class="detail-section"><div class="detail-grid">
+        ${field("Cliente", item.usuario)}${field("Empresa", item.empresa || "Não informada")}${field("Categoria", label(item.categoria))}
+        ${field("Situação", label(item.status))}${field("Prazo", deadline(item.prazo))}${field("Mensagens", item.linhas_mensagem.replaceAll("|", ", "))}
+      </div></section>
       <section class="detail-section"><h3>Impacto relatado</h3><p class="detail-copy">${escapeHtml(item.impacto)}</p></section>
       <section class="detail-section"><h3>Próximo passo sugerido</h3><p class="detail-copy">${escapeHtml(item.proximo_passo)}</p></section>
       <section class="detail-section"><h3>Revisão humana</h3><p class="detail-copy">${item.revisao_necessaria === "sim" ? "Necessária antes de decidir ou executar." : "Classificação com evidência suficiente; a execução ainda exige confirmação operacional."}</p></section>
-    `;
+      <section class="detail-section"><h3>Registrar decisão humana</h3>${apiAvailable ? decisionForm(item) : '<p class="offline-note">Abra o painel pelo servidor local para registrar uma decisão. No modo arquivo, a demonstração é somente leitura.</p>'}</section>`;
     detailPanel.classList.add("is-open");
     detailPanel.setAttribute("aria-hidden", "false");
     scrim.hidden = false;
     renderQueue();
+    if (apiAvailable) bindDecisionForm(item);
     document.querySelector("#close-detail").focus();
   }
 
   function field(name, value) {
     return `<div class="detail-field"><span>${escapeHtml(name)}</span><strong>${escapeHtml(value)}</strong></div>`;
+  }
+
+  function decisionForm(item) {
+    return `<form class="decision-form" id="decision-form" novalidate>
+      <div class="decision-type" aria-label="Tipo de decisão">
+        <button class="choice-button" type="button" data-event-type="correcao_prioridade" aria-pressed="true">Corrigir prioridade</button>
+        <button class="choice-button" type="button" data-event-type="aguardar_informacao" aria-pressed="false">Aguardar informação</button>
+        <button class="choice-button" type="button" data-event-type="conclusao" aria-pressed="false">Concluir</button>
+      </div>
+      <div class="form-field" id="priority-field"><span>Nova prioridade</span><div class="priority-options" aria-label="Nova prioridade">
+        ${["P0", "P1", "P2", "P3"].map((priority) => `<button class="choice-button" type="button" data-new-priority="${priority}" aria-pressed="${item.prioridade === priority}">${priority}</button>`).join("")}
+      </div></div>
+      <label class="form-field" id="return-field" hidden><span>Retorno combinado, se houver</span><input id="return-at" type="datetime-local" /></label>
+      <label class="form-field"><span>Responsável</span><input id="event-author" name="author" value="operador" maxlength="80" autocomplete="name" /></label>
+      <label class="form-field"><span>Motivo da decisão</span><textarea id="event-reason" name="reason" minlength="10" maxlength="600" required></textarea></label>
+      <p class="form-hint">A decisão será adicionada ao histórico. Nenhuma mensagem original será alterada.</p>
+      <p class="form-error" id="form-error" role="alert" hidden></p>
+      <button class="save-button" id="save-decision" type="submit">Registrar decisão</button>
+    </form>`;
+  }
+
+  function bindDecisionForm(item) {
+    const form = document.querySelector("#decision-form");
+    let eventType = "correcao_prioridade";
+    let priority = item.prioridade;
+    form.querySelectorAll("[data-event-type]").forEach((button) => button.addEventListener("click", () => {
+      eventType = button.dataset.eventType;
+      form.querySelectorAll("[data-event-type]").forEach((candidate) => candidate.setAttribute("aria-pressed", String(candidate === button)));
+      document.querySelector("#priority-field").hidden = eventType !== "correcao_prioridade";
+      document.querySelector("#return-field").hidden = eventType !== "aguardar_informacao";
+    }));
+    form.querySelectorAll("[data-new-priority]").forEach((button) => button.addEventListener("click", () => {
+      priority = button.dataset.newPriority;
+      form.querySelectorAll("[data-new-priority]").forEach((candidate) => candidate.setAttribute("aria-pressed", String(candidate === button)));
+    }));
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const reason = document.querySelector("#event-reason").value.trim();
+      const author = document.querySelector("#event-author").value.trim() || "operador";
+      const returnAt = document.querySelector("#return-at").value || null;
+      const errorElement = document.querySelector("#form-error");
+      const saveButton = document.querySelector("#save-decision");
+      if (reason.length < 10) {
+        errorElement.textContent = "Explique o motivo com pelo menos 10 caracteres.";
+        errorElement.hidden = false;
+        document.querySelector("#event-reason").focus();
+        return;
+      }
+      errorElement.hidden = true;
+      saveButton.disabled = true;
+      saveButton.textContent = "Registrando…";
+      try {
+        const response = await fetch("/api/v1/events", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Idempotency-Key": createIdempotencyKey() },
+          body: JSON.stringify({ attendance_id: item.atendimento_id, event_type: eventType, reason, author, priority: eventType === "correcao_prioridade" ? priority : null, return_at: eventType === "aguardar_informacao" ? returnAt : null }),
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload?.error?.message || "Não foi possível registrar a decisão.");
+        data = normalizeApiState(payload.state);
+        renderAll();
+        openDetails(item.atendimento_id);
+        showNotice(payload.created ? "Decisão registrada no histórico." : "Essa decisão já havia sido registrada.");
+      } catch (error) {
+        errorElement.textContent = error.message || "Não foi possível registrar a decisão.";
+        errorElement.hidden = false;
+        saveButton.disabled = false;
+        saveButton.textContent = "Tentar novamente";
+      }
+    });
+  }
+
+  function createIdempotencyKey() {
+    return window.crypto?.randomUUID ? window.crypto.randomUUID() : `local-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
+
+  function showNotice(message, isError = false) {
+    window.clearTimeout(noticeTimer);
+    notice.textContent = message;
+    notice.classList.toggle("is-error", isError);
+    notice.hidden = false;
+    noticeTimer = window.setTimeout(() => { notice.hidden = true; }, 5000);
   }
 
   function closeDetails() {
@@ -141,35 +247,29 @@
     });
   }
 
-  document.querySelectorAll("[data-priority]").forEach((button) => button.addEventListener("click", () => {
-    state.priority = button.dataset.priority;
-    setButtonGroup("[data-priority]", "priority", state.priority);
-    renderQueue();
-  }));
-
-  document.querySelectorAll("[data-scope]").forEach((button) => button.addEventListener("click", () => {
-    state.scope = button.dataset.scope;
-    setButtonGroup("[data-scope]", "scope", state.scope);
-    renderQueue();
-  }));
-
+  document.querySelectorAll("[data-priority]").forEach((button) => button.addEventListener("click", () => { state.priority = button.dataset.priority; setButtonGroup("[data-priority]", "priority", state.priority); renderQueue(); }));
+  document.querySelectorAll("[data-scope]").forEach((button) => button.addEventListener("click", () => { state.scope = button.dataset.scope; setButtonGroup("[data-scope]", "scope", state.scope); renderQueue(); }));
   search.addEventListener("input", () => { state.query = search.value; renderQueue(); });
   document.querySelector("#clear-filters").addEventListener("click", () => {
-    state.priority = "all";
-    state.scope = "active";
-    state.query = "";
-    search.value = "";
-    setButtonGroup("[data-priority]", "priority", "all");
-    setButtonGroup("[data-scope]", "scope", "active");
-    renderQueue();
+    state.priority = "all"; state.scope = "active"; state.query = ""; search.value = "";
+    setButtonGroup("[data-priority]", "priority", "all"); setButtonGroup("[data-scope]", "scope", "active"); renderQueue();
   });
   document.querySelector("#close-detail").addEventListener("click", closeDetails);
   scrim.addEventListener("click", closeDetails);
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && state.selectedId) closeDetails();
+    if (event.key === "Tab" && state.selectedId) trapPanelFocus(event);
   });
 
-  renderMetrics();
-  renderEvents();
-  renderQueue();
+  function trapPanelFocus(event) {
+    const focusable = [...detailPanel.querySelectorAll('button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')];
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+    if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+  }
+
+  renderAll();
+  loadData();
 })();

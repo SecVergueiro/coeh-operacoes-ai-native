@@ -4,6 +4,8 @@
 
 Mostrar a planilha original e explicar: mensagem não é tarefa; a solução transforma conversas intercaladas em atendimentos priorizados, com revisão humana.
 
+Antes de gravar, iniciar o painel com `python -m backend` e abrir `http://127.0.0.1:8765`.
+
 ## 0:35–1:25 — harness
 
 Abrir `AGENTS.md`, mostrar a ordem de leitura, as regras contra duplicidade e a precedência das decisões humanas.
@@ -29,7 +31,7 @@ Explicar que esses eventos ficam separados das mensagens e não são apagados.
 
 ## 3:05–4:20 — rodada 2
 
-Abrir `painel/index.html`, filtrar P0 e abrir um atendimento. Mostrar que:
+No painel, filtrar P0 e abrir um atendimento. Mostrar que:
 
 - Lia e Paula receberam nova urgência;
 - dados novos de Ana permitem sair de `aguardando_cliente`;

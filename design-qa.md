@@ -14,6 +14,9 @@ Ferramenta operacional densa, com a fila como elemento principal. A tela usa neu
 - fechamento por botão, fundo ou Escape;
 - foco devolvido à linha após fechar;
 - histórico de decisões humanas visível;
+- formulário contextual para corrigir prioridade, aguardar informação ou concluir;
+- validação antes do envio, estado “Registrando” e erro recuperável sem perder o texto;
+- modo degradado explícito quando o servidor não responde;
 - adaptação para larguras menores e movimento reduzido.
 
 ## Validação executada
@@ -23,6 +26,8 @@ Ferramenta operacional densa, com a fila como elemento principal. A tela usa neu
 - HTML analisado sem erro estrutural pelo parser;
 - index, CSS, dados e JavaScript responderam HTTP 200 em servidor temporário;
 - estado operacional aprovado pelo validador: 22 atendimentos, 3 eventos e 96 mensagens vinculadas.
+- seis testes de domínio e contrato HTTP aprovados, incluindo idempotência e erro de validação.
+- benchmark local com 200 requisições: p95 de 2,618 ms, sem erros.
 
 ## Limite da verificação
 
