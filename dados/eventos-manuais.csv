@@ -1,0 +1,4 @@
+evento_id,atendimento_id,ocorrido_em,autor,tipo,campo,valor_anterior,valor_novo,motivo,retorno_em
+EVT-001,ATD-020,2026-11-04T17:30:00-03:00,operador,correcao_prioridade,prioridade,P1,P3,"A palavra URGENTE não representa o prazo real; a reunião é em 20/11 e a entrega pode ser planejada.",
+EVT-002,ATD-003,2026-11-04T17:35:00-03:00,operador,aguardar_informacao,status,novo,aguardando_cliente,"A cliente informou que ainda enviaria dados necessários para a nota. Confirmar dados do tomador antes da emissão.",2026-11-05T10:00:00-03:00
+EVT-003,ATD-007,2026-11-04T17:40:00-03:00,operador,conclusao,status,em_analise,concluido,"Cliente confirmou recebimento do comprovante de cancelamento da nota 42 e declarou que era somente isso.",

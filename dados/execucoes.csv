@@ -1,0 +1,3 @@
+execucao_id,momento_da_analise,fuso,linhas_entrada,mensagens_novas,atendimentos_antes,atendimentos_depois,eventos_manuais_aplicados,resultado
+RUN-001,2026-11-04T18:00:00-03:00,America/Sao_Paulo,2-64,63,0,21,3,aprovado
+RUN-002,2026-11-05T16:00:00-03:00,America/Sao_Paulo,65-97,33,21,22,3,aprovado
